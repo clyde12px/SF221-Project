@@ -1,1 +1,74 @@
+<!DOCTYPE html>
+<html lang="th">
 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hansel & Gretel - Interactive Story</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div id="game">
+
+    <!-- BACKGROUND -->
+    <img id="background" src="ch1_asset/scene1.png" alt="ฉากนิทานฮันเซลกับเกรเทล">
+
+    <div id="darkOverlay"></div>
+
+    <!-- STORY PANEL -->
+    <div class="storyPanel">
+
+        <div class="chapterTitle" id="chapterTitle">
+            ฉากที่ 1: กระท่อมไม้ริมชายป่า
+        </div>
+
+        <div class="storyText" id="storyText"></div>
+
+        <div class="readArea" id="readArea">
+            <button class="readBtn" id="readBtn" onclick="handleRead()">
+                อ่านต่อ ▼
+            </button>
+        </div>
+
+        <!-- เลือกความรู้สึก -->
+        <div class="emotionArea" id="emotionArea">
+            <div class="emotionHint">
+                💭 เลือกว่าตัวละครจะแสดงความรู้สึกแบบไหน
+            </div>
+            <div class="choices" id="choices"></div>
+        </div>
+
+        <!-- บทพูดหลังเลือกความรู้สึก -->
+        <div class="responseBox" id="responseBox"></div>
+
+        <div class="nextArea">
+            <button class="nextBtn waiting" id="nextBtn" onclick="nextStep()" disabled>
+                เลือกความรู้สึกก่อน →
+            </button>
+        </div>
+
+    </div>
+
+    <!-- END SCREEN -->
+    <div class="endScreen" id="endScreen">
+        <div class="endCard">
+            <h2>✨ จบตอนที่ 1 ✨</h2>
+            <p>
+                ฮันเซลและเกรเทลสามารถใช้ประกายแสง จากก้อนหินนำทางกลับบ้านได้สำเร็จ
+                <br><br>
+                พวกเขาได้เรียนรู้ว่า เมื่อมีสติ กล้าหาญ และช่วยเหลือกัน เราก็สามารถผ่านเรื่องยากๆ ไปได้
+            </p>
+            <button class="restartBtn" onclick="startMinigame()">
+                🎮 เริ่ม Minigame 1
+            </button>
+        </div>
+    </div>
+
+</div>
+
+<script src="Story_ch1.js"></script>
+
+</body>
+</html>
