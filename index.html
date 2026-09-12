@@ -5,7 +5,418 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hansel & Gretel - Interactive Story</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+/* =====================================================
+   RESET
+===================================================== */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: "Trebuchet MS", "Tahoma", sans-serif;
+    background: #1c120d;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#game {
+    position: absolute;
+    width: 1920px;
+    height: 1080px;
+    left: 50%;
+    top: 50%;
+    overflow: hidden;
+    background: #1c120d;
+    transform-origin: center center;
+}
+
+/* =====================================================
+   BACKGROUND
+===================================================== */
+#background {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+    z-index: 1;
+    transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+#background.scene-change {
+    opacity: 0.1;
+    transform: scale(1.025);
+}
+
+/* =====================================================
+   DARK OVERLAY
+===================================================== */
+#darkOverlay {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background: linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.02),
+        rgba(0, 0, 0, 0) 60%,
+        rgba(0, 0, 0, 0.28)
+    );
+}
+
+/* =====================================================
+   STORY PANEL
+===================================================== */
+.storyPanel {
+    position: absolute;
+    left: 50%;
+    bottom: 10%;
+    transform: translateX(-50%);
+    width: min(60.5%, 1000px);
+    height: clamp(180px, 22.4vh, 210px);
+    z-index: 8;
+    padding: 10px 18px 18px;
+    border-radius: 25px;
+    background: rgba(55, 42, 29, 0.84);
+    border: 2px solid rgba(216, 154, 51, 0.95);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(1px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* =====================================================
+   SCENE TITLE
+===================================================== */
+.chapterTitle {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    padding: 8px 27px;
+    margin: 0 0 7px 0;
+    min-height: 38px;
+    border-radius: 24px;
+    background: #d89a33;
+    color: #fffdf5;
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 1.1;
+    white-space: nowrap;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.18);
+}
+
+/* =====================================================
+   STORY TEXT
+===================================================== */
+.storyText {
+    position: relative;
+    width: 100%;
+    min-height: 48px;
+    max-height: 60px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    color: #fffdf8;
+    font-size: 24px;
+    line-height: 1.35;
+    padding: 0 10px;
+    text-align: center;
+    text-shadow: 0 2px 3px rgba(0, 0, 0, 0.45);
+}
+
+/* =====================================================
+   TYPING CURSOR
+===================================================== */
+.typingCursor {
+    display: inline-block;
+    width: 2px;
+    height: 1em;
+    margin-left: 3px;
+    vertical-align: -2px;
+    background: #ffe08b;
+    animation: blink 0.7s infinite;
+}
+
+@keyframes blink {
+    0%, 45% { opacity: 1; }
+    46%, 100% { opacity: 0; }
+}
+
+/* =====================================================
+   READ AREA & BUTTON
+===================================================== */
+.readArea {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: auto;
+    padding-top: 5px;
+    flex-shrink: 0;
+}
+
+.readBtn {
+    border: none;
+    cursor: pointer;
+    min-width: 125px;
+    height: 38px;
+    padding: 7px 20px;
+    border-radius: 23px;
+    background: #d89a33;
+    color: #fffdf5;
+    font-size: 16px;
+    font-weight: bold;
+    box-shadow: 0 3px 7px rgba(0, 0, 0, 0.22);
+    transition: transform 0.18s ease, filter 0.18s ease;
+}
+
+.readBtn:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.08);
+}
+
+.readBtn.hidden {
+    display: none;
+}
+
+/* =====================================================
+   EMOTION AREA
+===================================================== */
+.emotionArea {
+    display: none;
+    flex-shrink: 0;
+    margin-top: -10px;
+    animation: fadeUp 0.35s ease;
+}
+
+.emotionArea.show {
+    display: block;
+}
+
+.emotionHint {
+    color: #fffdf8;
+    font-size: 16px;
+    font-weight: normal;
+    margin: 0 0 6px 0;
+    line-height: 1.2;
+    text-align: left;
+    white-space: nowrap;
+    text-shadow: 0 2px 3px rgba(0, 0, 0, 0.4);
+}
+
+/* =====================================================
+   CHOICE BUTTONS
+===================================================== */
+.choices {
+    display: flex;
+    width: 100%;
+    gap: 9px;
+    flex-wrap: nowrap;
+    margin-bottom: 4px;
+}
+
+.choiceBtn {
+    flex: 1;
+    min-width: 0;
+    height: 40px;
+    padding: 5px 10px;
+    border: 2px solid transparent;
+    border-radius: 15px;
+    background: #ffeedd;
+    color: #5a3923;
+    cursor: pointer;
+    font-size: 17px;
+    font-weight: bold;
+    line-height: 1.15;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.20);
+    transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+    white-space: normal;
+}
+
+.choiceBtn:hover {
+    transform: translateY(-1px);
+    background: #fff3e8;
+}
+
+.choiceBtn.selected {
+    background: #ffd45c;
+    border-color: #fff0af;
+    box-shadow: 0 0 0 3px rgba(255, 212, 92, 0.20), 0 4px 9px rgba(0, 0, 0, 0.25);
+}
+
+/* =====================================================
+   RESPONSE BOX
+===================================================== */
+.responseBox {
+    display: none;
+    width: 100%;
+    min-height: 50px;
+    height: auto;
+    max-height: 66px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    padding: 0 12px;
+    border: none;
+    background: transparent;
+    color: #fffdf8;
+    font-size: 24px;
+    line-height: 1.35;
+    overflow: visible;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    text-shadow: 0 2px 3px rgba(0, 0, 0, 0.45);
+    animation: fadeUp 0.35s ease;
+}
+
+.responseBox.show {
+    display: flex;
+}
+
+.emotionTag {
+    display: none;
+}
+
+/* =====================================================
+   NEXT AREA & BUTTON
+===================================================== */
+.nextArea {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: auto;
+    padding-top: 5px;
+    flex-shrink: 0;
+}
+
+.nextBtn {
+    border: none;
+    cursor: pointer;
+    min-width: 125px;
+    height: 38px;
+    padding: 7px 20px;
+    border-radius: 23px;
+    background: #d89a33;
+    color: #fffdf5;
+    font-size: 17px;
+    font-weight: bold;
+    box-shadow: 0 3px 7px rgba(0, 0, 0, 0.22);
+    transition: transform 0.18s ease, filter 0.18s ease;
+}
+
+.nextBtn:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.08);
+}
+
+.nextBtn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.nextBtn.waiting {
+    display: none;
+}
+
+/* =====================================================
+   END SCREEN
+===================================================== */
+.endScreen {
+    position: absolute;
+    inset: 0;
+    z-index: 30;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(20, 12, 8, 0.68);
+    backdrop-filter: blur(3px);
+}
+
+.endScreen.show {
+    display: flex;
+}
+
+.endCard {
+    width: min(90%, 620px);
+    padding: 28px;
+    border-radius: 25px;
+    background: #fff5d9;
+    border: 4px solid #dba154;
+    color: #59331f;
+    text-align: center;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+    animation: popIn 0.45s ease;
+}
+
+.endCard h2 {
+    margin-bottom: 12px;
+    font-size: 27px;
+}
+
+.endCard p {
+    margin-bottom: 20px;
+    font-size: 22px;
+    line-height: 1.7;
+}
+
+.restartBtn {
+    border: none;
+    cursor: pointer;
+    padding: 10px 23px;
+    border-radius: 16px;
+    background: #8a5634;
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+    transition: transform 0.18s ease, filter 0.18s ease;
+}
+
+.restartBtn:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+}
+
+/* =====================================================
+   ANIMATIONS
+===================================================== */
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes popIn {
+    from {
+        opacity: 0;
+        transform: scale(0.94);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+    </style>
 </head>
 
 <body>
@@ -68,7 +479,380 @@
 
 </div>
 
-<script src="Story_ch1.js"></script>
+<script>
+/* =========================================================
+   PLAYER ID FROM URL
+========================================================= */
+const urlParams = new URLSearchParams(window.location.search);
+const playerId = urlParams.get('id');
+
+/* =========================================================
+   STORY DATA (อัปเดต Path ไปที่ ch1_asset/)
+========================================================= */
+const story = [
+
+    /* SCENE 1 */
+    {
+        scene: "ch1_asset/scene1.png",
+        title: "ฉากที่ 1: กระท่อมไม้ริมชายป่า",
+        paragraphs: [
+            "กาลครั้งหนึ่งนานมาแล้ว... ",
+            "มีครอบครัวคนตัดไม้ใจดี อาศัยอยู่ในกระท่อมไม้หลังเล็กในป่า",
+            "พ่อมีลูกสองคน ชื่อฮันเซล เป็นพี่ชาย และเกรเทล เป็นน้องสาว",
+        ],
+        choices: [
+            {
+                emotion: "🤨 Option A — ฮันเซล: ระแวง",
+                image: "ch1_asset/scene1_A.png",
+                response: "ฮันเซลกระซิบกับเกรเทล “เกรเทล... แม่เลี้ยงดูแปลกๆ นะ ระวังตัวไว้หน่อย”"
+            },
+            {
+                emotion: "😊 Option B — เกรเทล: สดใส",
+                image: "ch1_asset/scene1_B.png",
+                response: "เกรเทลยื่นดอกไม้ให้แม่เลี้ยง “แม่คะ! หนูเก็บดอกไม้สวยๆ มาฝากค่ะ”"
+            }
+        ]
+    },
+
+    /* SCENE 2 */
+    {
+        scene: "ch1_asset/scene2.png",
+        title: "ฉากที่ 2: เสียงกระซิบในครัวยามค่ำคืน",
+        paragraphs: [
+            "ฝนไม่ตกมานาน จนในหมู่บ้านไม่มีอาหารกิน",
+            "ในคืนมืดมิด พ่อกับแม่เลี้ยงนั่งคุยกันด้วยความเครียด",
+            "แม่เลี้ยงเสนอให้เอาเด็กๆ ไปทิ้งในป่า..."
+        ],
+        choices: [
+            {
+                emotion: "😌 Option A — ฮันเซล: อบอุ่น",
+                image: "ch1_asset/scene2_A.png",
+                response: "ฮันเซลเอานิ้วแตะปากแล้วกระซิบ “อย่าร้องไห้นะเกรเทล พี่จะปกป้องเธอเอง”"
+            },
+            {
+                emotion: "😢 Option B — เกรเทล: น้ำตาคลอ",
+                image: "ch1_asset/scene2_B.png",
+                response: "เกรเทลสะอื้นเบาๆ “ทำไมแม่เลี้ยงใจร้ายจัง... พวกเราจะทำยังไงดีพี่ฮันเซล”"
+            }
+        ]
+    },
+
+    /* SCENE 3 */
+    {
+        scene: "ch1_asset/scene3.png",
+        title: "ฉากที่ 3: การเดินทางเข้าสู่ป่าลึก",
+        paragraphs: [
+            "เช้าวันต่อมา พ่อต้องเข้าไปตัดไม้ในเมือง",
+            "แม่เลี้ยงจึงแกล้งทำเป็นยิ้มหวาน ชวนเด็กๆ ไปเที่ยวป่า",
+            "แต่ฮันเซลรู้ทัน จึงแอบหยิบก้อนหินเรืองแสงใส่กระเป๋า",
+            "แล้วค่อยๆ ทิ้งลงพื้นทีละก้อนตามทาง"
+        ],
+        choices: [
+            {
+                emotion: "🧐 Option A — ฮันเซล: ระวังตัว",
+                image: "ch1_asset/scene3_A.png",
+                response: "ฮันเซลนึกในใจ “ต้องไม่ให้แม่เลี้ยงรู้... หินพวกนี้จะพาเรากลับบ้าน”"
+            },
+            {
+                emotion: "😌 Option B — เกรเทล: โล่งใจ",
+                image: "ch1_asset/scene3_B.png",
+                response: "เกรเทลนึกในใจ “นป่าน่ากลัวจัง... แต่มีพี่ฮันเซลอยู่ หนูไม่กลัวแล้ว”"
+            }
+        ]
+    },
+
+    /* SCENE 4 */
+    {
+        scene: "ch1_asset/scene4.png",
+        title: "ฉากที่ 4: คำโกหกกลางป่าใหญ่",
+        paragraphs: [
+            "เมื่อเดินมาถึงกลางป่า แม่เลี้ยงให้เด็กๆ นั่งรอที่ขอนไม้ แล้วโกหกว่า",
+            "“ลูกๆ นั่งรอตรงนี้นะ เดี๋ยวแม่ไปเก็บผลไม้ก่อน แล้วจะรีบมารับ”"
+        ],
+        choices: [
+            {
+                emotion: "😐 Option A — ฮันเซล: สุขุม",
+                image: "ch1_asset/scene4_A.png",
+                response: "ฮันเซลพยักหน้าตอบ “ครับ พวกเราจะนั่งรออยู่ที่นี่”"
+            },
+            {
+                emotion: "🥺 Option B — เกรเทล: กังวล",
+                image: "ch1_asset/scene4_B.png",
+                response: "เกรเทลพูดเสียงเบาๆ “อย่าไปนานนะคะ หนูเริ่มกลัวแล้ว...”"
+            }
+        ]
+    },
+
+    /* SCENE 5 */
+    {
+        scene: "ch1_asset/scene5.png",
+        title: "ฉากที่ 5: ประกายแสงแห่งความหวัง",
+        paragraphs: [
+            "เด็กๆ นั่งรออย่างอดทน จนกระทั่งตะวันลับขอบฟ้า",
+            "และความมืดมิดปกคลุม แม่เลี้ยงก็ยังไม่กลับมา",
+            "แต่นั่นไม่ได้ทำให้พวกเขารู้สึกหมดหวัง",
+            "เพราะก้อนหินเรืองแสงเริ่มเปล่งประกายเพื่อนำทางพวกเขากลับบ้าน..."
+        ],
+        choices: [
+            {
+                emotion: "😎 Option A — ฮันเซล: มั่นใจ",
+                image: "ch1_asset/scene5_A.png",
+                response: "ฮันเซลจับมือน้องแน่น “เกรเทลดูสิ หินส่องแสงแล้ว ตามพี่มาเลยพวกเราได้กลับบ้านแน่”"
+            },
+            {
+                emotion: "🤩 Option B — เกรเทล: ตื่นเต้น",
+                image: "ch1_asset/scene5_B.png",
+                response: "เกรเทลชี้ไปที่หิน “แสงสวยจังเลยพี่ฮันเซล เหมือนดาวอยู่บนดินเลย พวกเรารอดแล้ว”"
+            }
+        ]
+    }
+
+];
+
+
+/* =========================================================
+   ELEMENTS
+========================================================= */
+const background = document.getElementById("background");
+const chapterTitle = document.getElementById("chapterTitle");
+const storyText = document.getElementById("storyText");
+const readBtn = document.getElementById("readBtn");
+const emotionArea = document.getElementById("emotionArea");
+const choicesContainer = document.getElementById("choices");
+const responseBox = document.getElementById("responseBox");
+const nextBtn = document.getElementById("nextBtn");
+const endScreen = document.getElementById("endScreen");
+
+
+/* =========================================================
+   VARIABLES
+========================================================= */
+let currentScene = 0;
+let currentParagraph = 0;
+let selectedChoice = null;
+let typing = false;
+let typingTimer = null;
+let currentText = "";
+
+
+/* =========================================================
+   LOAD SCENE
+========================================================= */
+function loadScene(index) {
+    currentScene = index;
+    currentParagraph = 0;
+    selectedChoice = null;
+    typing = false;
+    clearInterval(typingTimer);
+
+    const data = story[index];
+
+    changeSceneImage(data.scene);
+    chapterTitle.textContent = data.title;
+    emotionArea.classList.remove("show");
+    storyText.style.display = "flex";
+    choicesContainer.innerHTML = "";
+    responseBox.innerHTML = "";
+    responseBox.classList.remove("show");
+
+    nextBtn.disabled = true;
+    nextBtn.classList.add("waiting");
+    nextBtn.textContent = "เลือกความรู้สึกก่อน →";
+    readBtn.classList.remove("hidden");
+
+    showParagraph();
+}
+
+
+/* =========================================================
+   SHOW PARAGRAPH
+========================================================= */
+function showParagraph() {
+    const data = story[currentScene];
+    const paragraph = data.paragraphs[currentParagraph];
+
+    currentText = paragraph;
+    typing = true;
+    clearInterval(typingTimer);
+
+    storyText.innerHTML = '<span></span><span class="typingCursor"></span>';
+    const textSpan = storyText.querySelector("span");
+
+    let characterIndex = 0;
+
+    typingTimer = setInterval(() => {
+        if (characterIndex < currentText.length) {
+            textSpan.textContent += currentText[characterIndex];
+            characterIndex++;
+        } else {
+            clearInterval(typingTimer);
+            typing = false;
+            updateReadButton();
+        }
+    }, 28);
+}
+
+
+/* =========================================================
+   HANDLE READ
+========================================================= */
+function handleRead() {
+    if (typing) {
+        clearInterval(typingTimer);
+        storyText.innerHTML = currentText;
+        typing = false;
+        updateReadButton();
+        return;
+    }
+
+    const data = story[currentScene];
+
+    if (currentParagraph < data.paragraphs.length - 1) {
+        currentParagraph++;
+        showParagraph();
+        return;
+    }
+
+    showChoices();
+}
+
+
+/* =========================================================
+   UPDATE READ BUTTON
+========================================================= */
+function updateReadButton() {
+    const data = story[currentScene];
+
+    if (typing) {
+        readBtn.textContent = "แสดงข้อความทั้งหมด";
+        return;
+    }
+
+    if (currentParagraph < data.paragraphs.length - 1) {
+        readBtn.textContent = "อ่านต่อ ▼";
+    } else {
+        readBtn.textContent = "เลือกความรู้สึก ▼";
+    }
+}
+
+
+/* =========================================================
+   SHOW CHOICES
+========================================================= */
+function showChoices() {
+    const data = story[currentScene];
+
+    readBtn.classList.add("hidden");
+    emotionArea.classList.add("show");
+    choicesContainer.innerHTML = "";
+
+    nextBtn.classList.add("waiting");
+    nextBtn.disabled = true;
+
+    data.choices.forEach((choice, index) => {
+        const button = document.createElement("button");
+        button.className = "choiceBtn";
+        button.textContent = choice.emotion;
+        button.onclick = () => chooseEmotion(index);
+        choicesContainer.appendChild(button);
+    });
+}
+
+
+/* =========================================================
+   CHOOSE EMOTION
+========================================================= */
+function chooseEmotion(choiceIndex) {
+    const data = story[currentScene];
+    const choice = data.choices[choiceIndex];
+
+    selectedChoice = choiceIndex;
+
+    storyText.style.display = "none";
+    emotionArea.classList.remove("show");
+
+    changeSceneImage(choice.image);
+
+    responseBox.innerHTML = `
+        <span class="emotionTag">${choice.emotion}</span>
+        ${choice.response}
+    `;
+    responseBox.classList.add("show");
+
+    nextBtn.disabled = false;
+    nextBtn.classList.remove("waiting");
+
+    if (currentScene === story.length - 1) {
+        nextBtn.textContent = "จบเรื่อง →";
+    } else {
+        nextBtn.textContent = "ไปต่อ →";
+    }
+}
+
+
+/* =========================================================
+   CHANGE IMAGE
+========================================================= */
+function changeSceneImage(imageName) {
+    background.classList.add("scene-change");
+
+    setTimeout(() => {
+        background.src = imageName;
+        background.classList.remove("scene-change");
+    }, 180);
+}
+
+
+/* =========================================================
+   NEXT STEP
+========================================================= */
+function nextStep() {
+    if (selectedChoice === null) return;
+
+    if (currentScene === story.length - 1) {
+        endScreen.classList.add("show");
+        return;
+    }
+
+    loadScene(currentScene + 1);
+}
+
+
+/* =========================================================
+   START MINIGAME
+========================================================= */
+function startMinigame() {
+    if (playerId) {
+        window.location.href = `../Minigame1/Minigame1.html?id=${playerId}`;
+    } else {
+        window.location.href = `../Minigame1/Minigame1.html`;
+    }
+}
+
+
+/* =========================================================
+   RESPONSIVE SCALE (1920x1080)
+========================================================= */
+function resizeGame() {
+    const game = document.getElementById("game");
+    if (!game) return;
+
+    const scaleX = window.innerWidth / 1920;
+    const scaleY = window.innerHeight / 1080;
+    const scale = Math.min(scaleX, scaleY);
+
+    game.style.transform = `translate(-50%, -50%) scale(${scale})`;
+}
+
+window.addEventListener("resize", resizeGame);
+resizeGame();
+
+
+/* =========================================================
+   START GAME
+========================================================= */
+loadScene(0);
+</script>
 
 </body>
 </html>
