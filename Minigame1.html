@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>มินิเกมที่ 1 - หาทางกลับบ้านในป่า</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="game">
+
+    <!-- START SCREEN (ไม่มี Input แล้ว ดึงชื่อมาแสดงต้อนรับแทน) -->
+    <div id="startScreen">
+        <div class="startBox">
+            <h1>🌲 หาทางกลับบ้านในป่า 🌲</h1>
+            <p id="welcomePlayerText" style="font-size: 1.4em; color: #4e9139; font-weight: bold;">กำลังโหลดข้อมูลผู้เล่น...</p>
+            <p>ช่วยฮันเซลกับเกรเทล ตอบโจทย์คณิตศาสตร์</p>
+            <p>สะสมก้อนหินเรืองแสงเพื่อนำทางกลับบ้าน</p>
+            
+            <button id="startBtn" class="startButton" onclick="startGame()">▶ เริ่มเกม</button>
+        </div>
+    </div>
+
+    <!-- STONE COUNTER STATUS BAR -->
+    <div id="stoneCounter">
+        <div>ก้อนกรวดสะสม: <span id="stoneNumber">0</span>/10</div>
+        <div id="bagStones">
+            <span class="bagStone hidden"></span>
+            <span class="bagStone hidden"></span>
+            <span class="bagStone hidden"></span>
+            <span class="bagStone hidden"></span>
+            <span class="bagStone hidden"></span>
+            <span class="bagStone hidden"></span>
+            <span class="bagStone hidden"></span>
+            <span class="bagStone hidden"></span>
+            <span class="bagStone hidden"></span>
+            <span class="bagStone hidden"></span>
+        </div>
+    </div>
+
+    <!-- QUESTION AREA -->
+    <div id="questionArea">
+        <div id="questionTitle"></div>
+        <div id="questionText"></div>
+        <div id="answers"></div>
+        <div id="feedback"></div>
+        
+        <div class="navControls">
+            <button id="prevButton" class="navBtn" onclick="prevQuestion()" style="display:none;">
+                ⭠
+            </button>
+            <button id="nextButton" class="navBtn" onclick="nextQuestion()" style="display:none;">
+                ⭢
+            </button>
+        </div>
+    </div>
+
+    <!-- RESULT / SUMMARY POPUP -->
+    <div id="success">
+        <div class="successBox">
+            <div class="successEmoji">🎉 ✨ 🏠</div>
+            <h1 id="resultTitle">เก่งมาก!</h1>
+            <p id="resultText">คุณสะสมก้อนหินเรืองแสงได้ครบแล้ว!</p>
+            <button class="actionBtn" onclick="startGame()">🔄 เล่นใหม่อีกครั้ง</button>
+        </div>
+    </div>
+
+</div>
+
+<script type="module" src="Minigame1.js"></script>
+
+</body>
+</html>
