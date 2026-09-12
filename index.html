@@ -1,857 +1,688 @@
 <!DOCTYPE html>
 <html lang="th">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hansel & Gretel - Interactive Story</title>
+    <title>มินิเกมที่ 1 - หาทางกลับบ้านในป่า</title>
     <style>
-/* =====================================================
-   RESET
-===================================================== */
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
+        /* =========================================================
+           CSS STYLES
+        ========================================================= */
+        * {
+            box-sizing: border-box;
+        }
 
-html,
-body {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    font-family: "Trebuchet MS", "Tahoma", sans-serif;
-    background: #1c120d;
-}
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+        }
 
-body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            background: #17291d;
+            font-family: Tahoma, "Noto Sans Thai", Arial, sans-serif;
+        }
 
-#game {
-    position: absolute;
-    width: 1920px;
-    height: 1080px;
-    left: 50%;
-    top: 50%;
-    overflow: hidden;
-    background: #1c120d;
-    transform-origin: center center;
-}
+        #game {
+            position: relative;
+            width: 100vw;
+            height: 56.25vw;
+            max-width: 177.777777vh;
+            max-height: 100vh;
+            margin: auto;
+            overflow: hidden;
+            background-image: url("BG_mini1.png");
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-size: 100% 100%;
+        }
 
-/* =====================================================
-   BACKGROUND
-===================================================== */
-#background {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: fill;
-    z-index: 1;
-    transition: opacity 0.35s ease, transform 0.35s ease;
-}
+        #startScreen {
+            position: absolute;
+            inset: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.28);
+        }
 
-#background.scene-change {
-    opacity: 0.1;
-    transform: scale(1.025);
-}
+        .startBox {
+            width: 42%;
+            max-width: 720px;
+            padding: 28px 35px;
+            text-align: center;
+            background: linear-gradient(#fff5d8, #f6d994);
+            border: 5px solid #71341c;
+            border-radius: 28px;
+            box-shadow: 0 12px 35px rgba(0,0,0,.45);
+        }
 
-/* =====================================================
-   DARK OVERLAY
-===================================================== */
-#darkOverlay {
-    position: absolute;
-    inset: 0;
-    z-index: 2;
-    pointer-events: none;
-    background: linear-gradient(
-        to bottom,
-        rgba(0, 0, 0, 0.02),
-        rgba(0, 0, 0, 0) 60%,
-        rgba(0, 0, 0, 0.28)
-    );
-}
+        .startBox h1 {
+            margin: 0 0 10px;
+            color: #692c15;
+            font-size: clamp(26px, 2.8vw, 44px);
+            line-height: 1.2;
+            font-weight: 900;
+        }
 
-/* =====================================================
-   STORY PANEL
-===================================================== */
-.storyPanel {
-    position: absolute;
-    left: 50%;
-    bottom: 10%;
-    transform: translateX(-50%);
-    width: min(60.5%, 1000px);
-    height: clamp(180px, 22.4vh, 210px);
-    z-index: 8;
-    padding: 10px 18px 18px;
-    border-radius: 25px;
-    background: rgba(55, 42, 29, 0.84);
-    border: 2px solid rgba(216, 154, 51, 0.95);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
-    backdrop-filter: blur(1px);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-}
+        .startBox p {
+            margin: 6px 0;
+            color: #71351d;
+            font-size: clamp(22px, 1.5vw, 26px);
+            line-height: 1.4;
+            font-weight: 700;
+        }
 
-/* =====================================================
-   SCENE TITLE
-===================================================== */
-.chapterTitle {
-    align-self: flex-start;
-    display: inline-flex;
-    align-items: center;
-    flex-shrink: 0;
-    padding: 8px 27px;
-    margin: 0 0 7px 0;
-    min-height: 38px;
-    border-radius: 24px;
-    background: #d89a33;
-    color: #fffdf5;
-    font-size: 18px;
-    font-weight: bold;
-    line-height: 1.1;
-    white-space: nowrap;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.18);
-}
+        .startButton, .actionBtn {
+            margin-top: 10px;
+            padding: 10px 32px;
+            border: 4px solid #653019;
+            border-radius: 20px;
+            background: linear-gradient(#82c95c, #4e9139);
+            color: white;
+            font-size: clamp(18px, 1.4vw, 26px);
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 5px 0 #4c2918;
+        }
 
-/* =====================================================
-   STORY TEXT
-===================================================== */
-.storyText {
-    position: relative;
-    width: 100%;
-    min-height: 48px;
-    max-height: 60px;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    color: #fffdf8;
-    font-size: 24px;
-    line-height: 1.35;
-    padding: 0 10px;
-    text-align: center;
-    text-shadow: 0 2px 3px rgba(0, 0, 0, 0.45);
-}
+        .startButton:hover, .actionBtn:hover {
+            filter: brightness(1.08);
+            transform: translateY(-2px);
+        }
 
-/* =====================================================
-   TYPING CURSOR
-===================================================== */
-.typingCursor {
-    display: inline-block;
-    width: 2px;
-    height: 1em;
-    margin-left: 3px;
-    vertical-align: -2px;
-    background: #ffe08b;
-    animation: blink 0.7s infinite;
-}
+        #stoneCounter {
+            position: absolute;
+            z-index: 30;
+            left: 55.0%;
+            top: 7.8%;
+            width: 27.8%;
+            height: 10.5%;
+            color: #672c16;
+            text-align: center;
+            font-size: clamp(15px, 1.25vw, 30px);
+            font-weight: 900;
+            pointer-events: none;
+        }
 
-@keyframes blink {
-    0%, 45% { opacity: 1; }
-    46%, 100% { opacity: 0; }
-}
+        #bagStones {
+            position: absolute;
+            left: 4%;
+            right: 4%;
+            top: 45%;
+            height: 60%;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            gap: clamp(18px, 2vw, 18px);
+        }
 
-/* =====================================================
-   READ AREA & BUTTON
-===================================================== */
-.readArea {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    margin-top: auto;
-    padding-top: 5px;
-    flex-shrink: 0;
-}
+        .bagStone {
+            position: relative;
+            display: inline-block;
+            width: clamp(16px, 1.2vw, 24px);
+            height: clamp(14px, 1vw, 20px);
+            border-radius: 45% 55% 50% 42%;
+            background:
+                radial-gradient(circle at 34% 28%, #ffffff 0 8%, #dffcff 9% 18%, transparent 19%),
+                linear-gradient(135deg, #e9ffff 0%, #8cecff 32%, #38bde4 62%, #207baf 100%);
+            border: 2px solid rgba(218,255,255,.95);
+            box-shadow:
+                0 0 5px rgba(170,248,255,.95),
+                0 0 10px rgba(70,220,255,.85),
+                0 0 16px rgba(45,190,255,.55);
+            transform: rotate(-8deg);
+            animation: stoneGlow 1.8s ease-in-out infinite alternate;
+            line-height: 1;
+            transition: opacity .25s, transform .25s;
+        }
 
-.readBtn {
-    border: none;
-    cursor: pointer;
-    min-width: 125px;
-    height: 38px;
-    padding: 7px 20px;
-    border-radius: 23px;
-    background: #d89a33;
-    color: #fffdf5;
-    font-size: 16px;
-    font-weight: bold;
-    box-shadow: 0 3px 7px rgba(0, 0, 0, 0.22);
-    transition: transform 0.18s ease, filter 0.18s ease;
-}
+        .bagStone.hidden {
+            opacity: 0;
+            transform: scale(.2);
+        }
 
-.readBtn:hover {
-    transform: translateY(-1px);
-    filter: brightness(1.08);
-}
+        .bagStone::after {
+            content: "";
+            position: absolute;
+            width: 30%;
+            height: 20%;
+            left: 20%;
+            top: 18%;
+            border-radius: 50%;
+            background: rgba(255,255,255,.8);
+            filter: blur(1px);
+        }
 
-.readBtn.hidden {
-    display: none;
-}
+        @keyframes stoneGlow {
+            from {
+                filter: brightness(.95);
+                box-shadow: 0 0 5px rgba(170,248,255,.85), 0 0 10px rgba(70,220,255,.72);
+            }
+            to {
+                filter: brightness(1.18);
+                box-shadow: 0 0 7px rgba(220,255,255,1), 0 0 15px rgba(70,225,255,.95);
+            }
+        }
 
-/* =====================================================
-   EMOTION AREA
-===================================================== */
-.emotionArea {
-    display: none;
-    flex-shrink: 0;
-    margin-top: -10px;
-    animation: fadeUp 0.35s ease;
-}
+        #questionArea {
+            position: absolute;
+            z-index: 20;
+            left: 49.0%;
+            top: 22.0%;
+            width: 34.5%;
+            min-height: 56%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
 
-.emotionArea.show {
-    display: block;
-}
+        #questionTitle {
+            width: 100%;
+            margin-bottom: 15px;
+            color: #672b15;
+            font-size: clamp(30px, 1.8vw, 30px);
+            line-height: 1.25;
+            font-weight: 900;
+        }
 
-.emotionHint {
-    color: #fffdf8;
-    font-size: 16px;
-    font-weight: normal;
-    margin: 0 0 6px 0;
-    line-height: 1.2;
-    text-align: left;
-    white-space: nowrap;
-    text-shadow: 0 2px 3px rgba(0, 0, 0, 0.4);
-}
+        #questionText {
+            width: 96%;
+            color: #6a2e18;
+            font-size: clamp(30px, 1.8vw, 30px);    
+            line-height: 1.45;
+            font-weight: 800;
+        }
 
-/* =====================================================
-   CHOICE BUTTONS
-===================================================== */
-.choices {
-    display: flex;
-    width: 100%;
-    gap: 9px;
-    flex-wrap: nowrap;
-    margin-bottom: 4px;
-}
+        #answers {
+            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
 
-.choiceBtn {
-    flex: 1;
-    min-width: 0;
-    height: 40px;
-    padding: 5px 10px;
-    border: 2px solid transparent;
-    border-radius: 15px;
-    background: #ffeedd;
-    color: #5a3923;
-    cursor: pointer;
-    font-size: 17px;
-    font-weight: bold;
-    line-height: 1.15;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.20);
-    transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
-    white-space: normal;
-}
+        .answer {
+            width: 100%;
+            height: clamp(48px, 4.5vw, 68px);
+            border: 3px solid #653019;
+            border-radius: 15px;
+            color: white;
+            font-size: clamp(18px, 1.5vw, 28px);
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 4px 0 rgba(75,35,17,.45);
+            transition: transform .12s, filter .12s, opacity .2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-.choiceBtn:hover {
-    transform: translateY(-1px);
-    background: #fff3e8;
-}
+        .answer:nth-child(1) { background: #73c6df; }
+        .answer:nth-child(2) { background: #f3b93b; }
+        .answer:nth-child(3) { background: #78b451; }
+        .answer:nth-child(4) { background: #e35b4d; }
 
-.choiceBtn.selected {
-    background: #ffd45c;
-    border-color: #fff0af;
-    box-shadow: 0 0 0 3px rgba(255, 212, 92, 0.20), 0 4px 9px rgba(0, 0, 0, 0.25);
-}
+        .answer:hover:not(:disabled) {
+            transform: translateY(-3px);
+            filter: brightness(1.08);
+        }
 
-/* =====================================================
-   RESPONSE BOX
-===================================================== */
-.responseBox {
-    display: none;
-    width: 100%;
-    min-height: 50px;
-    height: auto;
-    max-height: 66px;
-    flex-shrink: 0;
-    margin-top: 2px;
-    padding: 0 12px;
-    border: none;
-    background: transparent;
-    color: #fffdf8;
-    font-size: 24px;
-    line-height: 1.35;
-    overflow: visible;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    text-shadow: 0 2px 3px rgba(0, 0, 0, 0.45);
-    animation: fadeUp 0.35s ease;
-}
+        .answer:active:not(:disabled) {
+            transform: translateY(2px);
+        }
 
-.responseBox.show {
-    display: flex;
-}
+        .answer:disabled {
+            cursor: default;
+            opacity: 0.65;
+        }
 
-.emotionTag {
-    display: none;
-}
+        .answer.selected-correct {
+            opacity: 1 !important;
+            filter: brightness(1.2);
+            box-shadow: 0 0 15px #3d8c35, 0 4px 0 rgba(75,35,17,.45);
+            border-color: #2b6125;
+        }
 
-/* =====================================================
-   NEXT AREA & BUTTON
-===================================================== */
-.nextArea {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    margin-top: auto;
-    padding-top: 5px;
-    flex-shrink: 0;
-}
+        .answer.selected-wrong {
+            opacity: 0.8 !important;
+            background: #b83b2e !important;
+            box-shadow: 0 0 10px #881a10, 0 4px 0 rgba(75,35,17,.45);
+        }
 
-.nextBtn {
-    border: none;
-    cursor: pointer;
-    min-width: 125px;
-    height: 38px;
-    padding: 7px 20px;
-    border-radius: 23px;
-    background: #d89a33;
-    color: #fffdf5;
-    font-size: 17px;
-    font-weight: bold;
-    box-shadow: 0 3px 7px rgba(0, 0, 0, 0.22);
-    transition: transform 0.18s ease, filter 0.18s ease;
-}
+        #feedback {
+            width: 100%;
+            min-height: 38px;
+            margin-top: 10px;
+            color: #71321b;
+            font-size: clamp(14px, 1.2vw, 20px);
+            line-height: 1.3;
+            font-weight: 900;
+        }
 
-.nextBtn:hover {
-    transform: translateY(-1px);
-    filter: brightness(1.08);
-}
+        #feedback.correct { color: #3d8c35; }
+        #feedback.wrong { color: #b83b2e; }
 
-.nextBtn:disabled {
-    opacity: 0.45;
-    cursor: not-allowed;
-    transform: none;
-}
+        .navControls {
+            display: flex;
+            gap: 10px;
+            margin-top: 0px;
+        }
 
-.nextBtn.waiting {
-    display: none;
-}
+        .navBtn {
+            padding: 10px 20px;
+            border: 3px solid #653019;
+            border-radius: 16px;
+            color: white;
+            font-size: clamp(14px, 1vw, 20px);
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #5a2a17;
+        }
 
-/* =====================================================
-   END SCREEN
-===================================================== */
-.endScreen {
-    position: absolute;
-    inset: 0;
-    z-index: 30;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    background: rgba(20, 12, 8, 0.68);
-    backdrop-filter: blur(3px);
-}
+        #prevButton {
+            background: linear-gradient(#73c6df, #38bde4);
+        }
 
-.endScreen.show {
-    display: flex;
-}
+        #nextButton {
+            background: linear-gradient(#ffc55b, #e88b31);
+        }
 
-.endCard {
-    width: min(90%, 620px);
-    padding: 28px;
-    border-radius: 25px;
-    background: #fff5d9;
-    border: 4px solid #dba154;
-    color: #59331f;
-    text-align: center;
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
-    animation: popIn 0.45s ease;
-}
+        #success {
+            position: absolute;
+            inset: 0;
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(15,40,25,.58);
+        }
 
-.endCard h2 {
-    margin-bottom: 12px;
-    font-size: 27px;
-}
+        .successBox {
+            width: 46%;
+            max-width: 760px;
+            padding: 28px;
+            background: linear-gradient(#fff3cd, #ffd77d);
+            border: 5px solid #6c3018;
+            border-radius: 30px;
+            text-align: center;
+            box-shadow: 0 12px 35px rgba(0,0,0,.45);
+        }
 
-.endCard p {
-    margin-bottom: 20px;
-    font-size: 22px;
-    line-height: 1.7;
-}
+        .successEmoji { font-size: clamp(45px, 4vw, 75px); }
+        .successBox h1 { margin: 5px; color: #682d16; font-size: clamp(26px, 2.3vw, 40px); }
+        .successBox p { color: #71351d; font-size: clamp(16px, 1.3vw, 24px); line-height: 1.6; font-weight: 700; }
 
-.restartBtn {
-    border: none;
-    cursor: pointer;
-    padding: 10px 23px;
-    border-radius: 16px;
-    background: #8a5634;
-    color: white;
-    font-size: 20px;
-    font-weight: bold;
-    transition: transform 0.18s ease, filter 0.18s ease;
-}
+        .confetti {
+            position: fixed;
+            z-index: 2000;
+            top: -30px;
+            font-size: 22px;
+            animation: confettiFall 2.8s linear forwards;
+        }
 
-.restartBtn:hover {
-    transform: translateY(-2px);
-    filter: brightness(1.1);
-}
-
-/* =====================================================
-   ANIMATIONS
-===================================================== */
-@keyframes fadeUp {
-    from {
-        opacity: 0;
-        transform: translateY(5px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes popIn {
-    from {
-        opacity: 0;
-        transform: scale(0.94);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
-}
+        @keyframes confettiFall {
+            to {
+                transform: translateY(110vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
     </style>
 </head>
-
 <body>
 
 <div id="game">
 
-    <!-- BACKGROUND -->
-    <img id="background" src="ch1_asset/scene1.png" alt="ฉากนิทานฮันเซลกับเกรเทล">
-
-    <div id="darkOverlay"></div>
-
-    <!-- STORY PANEL -->
-    <div class="storyPanel">
-
-        <div class="chapterTitle" id="chapterTitle">
-            ฉากที่ 1: กระท่อมไม้ริมชายป่า
+    <!-- START SCREEN -->
+    <div id="startScreen">
+        <div class="startBox">
+            <h1>🌲 หาทางกลับบ้านในป่า 🌲</h1>
+            <p id="welcomePlayerText" style="font-size: 1.4em; color: #4e9139; font-weight: bold;">กำลังโหลดข้อมูลผู้เล่น...</p>
+            <p>ช่วยฮันเซลกับเกรเทล ตอบโจทย์คณิตศาสตร์</p>
+            <p>สะสมก้อนหินเรืองแสงเพื่อนำทางกลับบ้าน</p>
+            
+            <button id="startBtn" class="startButton" onclick="startGame()">▶ เริ่มเกม</button>
         </div>
-
-        <div class="storyText" id="storyText"></div>
-
-        <div class="readArea" id="readArea">
-            <button class="readBtn" id="readBtn" onclick="handleRead()">
-                อ่านต่อ ▼
-            </button>
-        </div>
-
-        <!-- เลือกความรู้สึก -->
-        <div class="emotionArea" id="emotionArea">
-            <div class="emotionHint">
-                💭 เลือกว่าตัวละครจะแสดงความรู้สึกแบบไหน
-            </div>
-            <div class="choices" id="choices"></div>
-        </div>
-
-        <!-- บทพูดหลังเลือกความรู้สึก -->
-        <div class="responseBox" id="responseBox"></div>
-
-        <div class="nextArea">
-            <button class="nextBtn waiting" id="nextBtn" onclick="nextStep()" disabled>
-                เลือกความรู้สึกก่อน →
-            </button>
-        </div>
-
     </div>
 
-    <!-- END SCREEN -->
-    <div class="endScreen" id="endScreen">
-        <div class="endCard">
-            <h2>✨ จบตอนที่ 1 ✨</h2>
-            <p>
-                ฮันเซลและเกรเทลสามารถใช้ประกายแสง จากก้อนหินนำทางกลับบ้านได้สำเร็จ
-                <br><br>
-                พวกเขาได้เรียนรู้ว่า เมื่อมีสติ กล้าหาญ และช่วยเหลือกัน เราก็สามารถผ่านเรื่องยากๆ ไปได้
-            </p>
-            <button class="restartBtn" onclick="startMinigame()">
-                🎮 เริ่ม Minigame 1
+    <!-- STONE COUNTER STATUS BAR -->
+    <div id="stoneCounter">
+        <div>ก้อนกรวดสะสม: <span id="stoneNumber">0</span>/10</div>
+        <div id="bagStones">
+            <span class="bagStone hidden"></span>
+            <span class="bagStone hidden"></span>
+            <span class="bagStone hidden"></span>
+            <span class="bagStone hidden"></span>
+            <span class="bagStone hidden"></span>
+            <span class="bagStone hidden"></span>
+            <span class="bagStone hidden"></span>
+            <span class="bagStone hidden"></span>
+            <span class="bagStone hidden"></span>
+            <span class="bagStone hidden"></span>
+        </div>
+    </div>
+
+    <!-- QUESTION AREA -->
+    <div id="questionArea">
+        <div id="questionTitle"></div>
+        <div id="questionText"></div>
+        <div id="answers"></div>
+        <div id="feedback"></div>
+        
+        <div class="navControls">
+            <button id="prevButton" class="navBtn" onclick="prevQuestion()" style="display:none;">
+                ⭠
             </button>
+            <button id="nextButton" class="navBtn" onclick="nextQuestion()" style="display:none;">
+                ⭢
+            </button>
+        </div>
+    </div>
+
+    <!-- RESULT / SUMMARY POPUP -->
+    <div id="success">
+        <div class="successBox">
+            <div class="successEmoji">🎉 ✨ 🏠</div>
+            <h1 id="resultTitle">เก่งมาก!</h1>
+            <p id="resultText">คุณสะสมก้อนหินเรืองแสงได้ครบแล้ว!</p>
+            <div style="display: flex; justify-content: center; gap: 15px; margin-top: 15px;">
+                <button class="actionBtn" onclick="startGame()">🔄 เล่นใหม่อีกครั้ง</button>
+                <button class="actionBtn" id="nextChapterBtn" style="background: linear-gradient(#4a90e2, #21528b);" onclick="goToNextChapter()">📖 ไปยังบทที่ 2</button>
+            </div>
         </div>
     </div>
 
 </div>
 
-<script>
-/* =========================================================
-   PLAYER ID FROM URL
-========================================================= */
-const urlParams = new URLSearchParams(window.location.search);
-const playerId = urlParams.get('id');
+<script type="module">
+    // ==========================================
+    // Firebase Import CDN
+    // ==========================================
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+    import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 
-/* =========================================================
-   STORY DATA (อัปเดต Path ไปที่ ch1_asset/)
-========================================================= */
-const story = [
+    // ==========================================
+    // Firebase Config
+    // ==========================================
+    const firebaseConfig = {
+      apiKey: "AIzaSyDKY05pVezUBqNpw23_csKgRKFMK5Ri3qk",
+      authDomain: "talespark-5b3a3.firebaseapp.com",
+      projectId: "talespark-5b3a3",
+      storageBucket: "talespark-5b3a3.firebasestorage.app",
+      messagingSenderId: "38618612317",
+      appId: "1:38618612317:web:23cf7a95bf262f83c403b4"
+    };
 
-    /* SCENE 1 */
-    {
-        scene: "ch1_asset/scene1.png",
-        title: "ฉากที่ 1: กระท่อมไม้ริมชายป่า",
-        paragraphs: [
-            "กาลครั้งหนึ่งนานมาแล้ว... ",
-            "มีครอบครัวคนตัดไม้ใจดี อาศัยอยู่ในกระท่อมไม้หลังเล็กในป่า",
-            "พ่อมีลูกสองคน ชื่อฮันเซล เป็นพี่ชาย และเกรเทล เป็นน้องสาว",
-        ],
-        choices: [
-            {
-                emotion: "🤨 Option A — ฮันเซล: ระแวง",
-                image: "ch1_asset/scene1_A.png",
-                response: "ฮันเซลกระซิบกับเกรเทล “เกรเทล... แม่เลี้ยงดูแปลกๆ นะ ระวังตัวไว้หน่อย”"
-            },
-            {
-                emotion: "😊 Option B — เกรเทล: สดใส",
-                image: "ch1_asset/scene1_B.png",
-                response: "เกรเทลยื่นดอกไม้ให้แม่เลี้ยง “แม่คะ! หนูเก็บดอกไม้สวยๆ มาฝากค่ะ”"
-            }
-        ]
-    },
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-    /* SCENE 2 */
-    {
-        scene: "ch1_asset/scene2.png",
-        title: "ฉากที่ 2: เสียงกระซิบในครัวยามค่ำคืน",
-        paragraphs: [
-            "ฝนไม่ตกมานาน จนในหมู่บ้านไม่มีอาหารกิน",
-            "ในคืนมืดมิด พ่อกับแม่เลี้ยงนั่งคุยกันด้วยความเครียด",
-            "แม่เลี้ยงเสนอให้เอาเด็กๆ ไปทิ้งในป่า..."
-        ],
-        choices: [
-            {
-                emotion: "😌 Option A — ฮันเซล: อบอุ่น",
-                image: "ch1_asset/scene2_A.png",
-                response: "ฮันเซลเอานิ้วแตะปากแล้วกระซิบ “อย่าร้องไห้นะเกรเทล พี่จะปกป้องเธอเอง”"
-            },
-            {
-                emotion: "😢 Option B — เกรเทล: น้ำตาคลอ",
-                image: "ch1_asset/scene2_B.png",
-                response: "เกรเทลสะอื้นเบาๆ “ทำไมแม่เลี้ยงใจร้ายจัง... พวกเราจะทำยังไงดีพี่ฮันเซล”"
-            }
-        ]
-    },
+    // ==========================================
+    // Player ID & Global Variables
+    // ==========================================
+    const urlParams = new URLSearchParams(window.location.search);
+    const playerId = urlParams.get('id');
 
-    /* SCENE 3 */
-    {
-        scene: "ch1_asset/scene3.png",
-        title: "ฉากที่ 3: การเดินทางเข้าสู่ป่าลึก",
-        paragraphs: [
-            "เช้าวันต่อมา พ่อต้องเข้าไปตัดไม้ในเมือง",
-            "แม่เลี้ยงจึงแกล้งทำเป็นยิ้มหวาน ชวนเด็กๆ ไปเที่ยวป่า",
-            "แต่ฮันเซลรู้ทัน จึงแอบหยิบก้อนหินเรืองแสงใส่กระเป๋า",
-            "แล้วค่อยๆ ทิ้งลงพื้นทีละก้อนตามทาง"
-        ],
-        choices: [
-            {
-                emotion: "🧐 Option A — ฮันเซล: ระวังตัว",
-                image: "ch1_asset/scene3_A.png",
-                response: "ฮันเซลนึกในใจ “ต้องไม่ให้แม่เลี้ยงรู้... หินพวกนี้จะพาเรากลับบ้าน”"
-            },
-            {
-                emotion: "😌 Option B — เกรเทล: โล่งใจ",
-                image: "ch1_asset/scene3_B.png",
-                response: "เกรเทลนึกในใจ “นป่าน่ากลัวจัง... แต่มีพี่ฮันเซลอยู่ หนูไม่กลัวแล้ว”"
-            }
-        ]
-    },
+    let playerName = "ผู้เล่น";
+    let currentQuestion = 0;
+    let questionResults = new Array(10).fill(null);
+    let userAnswers = new Array(10).fill(null);
 
-    /* SCENE 4 */
-    {
-        scene: "ch1_asset/scene4.png",
-        title: "ฉากที่ 4: คำโกหกกลางป่าใหญ่",
-        paragraphs: [
-            "เมื่อเดินมาถึงกลางป่า แม่เลี้ยงให้เด็กๆ นั่งรอที่ขอนไม้ แล้วโกหกว่า",
-            "“ลูกๆ นั่งรอตรงนี้นะ เดี๋ยวแม่ไปเก็บผลไม้ก่อน แล้วจะรีบมารับ”"
-        ],
-        choices: [
-            {
-                emotion: "😐 Option A — ฮันเซล: สุขุม",
-                image: "ch1_asset/scene4_A.png",
-                response: "ฮันเซลพยักหน้าตอบ “ครับ พวกเราจะนั่งรออยู่ที่นี่”"
-            },
-            {
-                emotion: "🥺 Option B — เกรเทล: กังวล",
-                image: "ch1_asset/scene4_B.png",
-                response: "เกรเทลพูดเสียงเบาๆ “อย่าไปนานนะคะ หนูเริ่มกลัวแล้ว...”"
-            }
-        ]
-    },
+    // DOM Elements
+    let startScreen, welcomePlayerText, startBtn, questionTitle, questionText, answers, feedback, nextButton, prevButton, stoneNumber, bagStones, success, resultTitle, resultText;
 
-    /* SCENE 5 */
-    {
-        scene: "ch1_asset/scene5.png",
-        title: "ฉากที่ 5: ประกายแสงแห่งความหวัง",
-        paragraphs: [
-            "เด็กๆ นั่งรออย่างอดทน จนกระทั่งตะวันลับขอบฟ้า",
-            "และความมืดมิดปกคลุม แม่เลี้ยงก็ยังไม่กลับมา",
-            "แต่นั่นไม่ได้ทำให้พวกเขารู้สึกหมดหวัง",
-            "เพราะก้อนหินเรืองแสงเริ่มเปล่งประกายเพื่อนำทางพวกเขากลับบ้าน..."
-        ],
-        choices: [
-            {
-                emotion: "😎 Option A — ฮันเซล: มั่นใจ",
-                image: "ch1_asset/scene5_A.png",
-                response: "ฮันเซลจับมือน้องแน่น “เกรเทลดูสิ หินส่องแสงแล้ว ตามพี่มาเลยพวกเราได้กลับบ้านแน่”"
-            },
-            {
-                emotion: "🤩 Option B — เกรเทล: ตื่นเต้น",
-                image: "ch1_asset/scene5_B.png",
-                response: "เกรเทลชี้ไปที่หิน “แสงสวยจังเลยพี่ฮันเซล เหมือนดาวอยู่บนดินเลย พวกเรารอดแล้ว”"
-            }
-        ]
-    }
+    // ==========================================
+    // Load Player Data from Firebase Logic
+    // ==========================================
+    async function loadPlayerData() {
+      if (!playerId) {
+        console.warn("⚠️ ไม่พบ Player ID ใน URL ใช้ชื่อเริ่มต้น:", playerName);
+        if (welcomePlayerText) welcomePlayerText.textContent = `ยินดีต้อนรับ คุณ${playerName}`;
+        return;
+      }
 
-];
+      try {
+        const playerRef = doc(db, "players", playerId);
+        const playerSnap = await getDoc(playerRef);
 
-
-/* =========================================================
-   ELEMENTS
-========================================================= */
-const background = document.getElementById("background");
-const chapterTitle = document.getElementById("chapterTitle");
-const storyText = document.getElementById("storyText");
-const readBtn = document.getElementById("readBtn");
-const emotionArea = document.getElementById("emotionArea");
-const choicesContainer = document.getElementById("choices");
-const responseBox = document.getElementById("responseBox");
-const nextBtn = document.getElementById("nextBtn");
-const endScreen = document.getElementById("endScreen");
-
-
-/* =========================================================
-   VARIABLES
-========================================================= */
-let currentScene = 0;
-let currentParagraph = 0;
-let selectedChoice = null;
-let typing = false;
-let typingTimer = null;
-let currentText = "";
-
-
-/* =========================================================
-   LOAD SCENE
-========================================================= */
-function loadScene(index) {
-    currentScene = index;
-    currentParagraph = 0;
-    selectedChoice = null;
-    typing = false;
-    clearInterval(typingTimer);
-
-    const data = story[index];
-
-    changeSceneImage(data.scene);
-    chapterTitle.textContent = data.title;
-    emotionArea.classList.remove("show");
-    storyText.style.display = "flex";
-    choicesContainer.innerHTML = "";
-    responseBox.innerHTML = "";
-    responseBox.classList.remove("show");
-
-    nextBtn.disabled = true;
-    nextBtn.classList.add("waiting");
-    nextBtn.textContent = "เลือกความรู้สึกก่อน →";
-    readBtn.classList.remove("hidden");
-
-    showParagraph();
-}
-
-
-/* =========================================================
-   SHOW PARAGRAPH
-========================================================= */
-function showParagraph() {
-    const data = story[currentScene];
-    const paragraph = data.paragraphs[currentParagraph];
-
-    currentText = paragraph;
-    typing = true;
-    clearInterval(typingTimer);
-
-    storyText.innerHTML = '<span></span><span class="typingCursor"></span>';
-    const textSpan = storyText.querySelector("span");
-
-    let characterIndex = 0;
-
-    typingTimer = setInterval(() => {
-        if (characterIndex < currentText.length) {
-            textSpan.textContent += currentText[characterIndex];
-            characterIndex++;
+        if (playerSnap.exists()) {
+          const data = playerSnap.data();
+          playerName = data.playerName || data.name || "ผู้เล่น";
+          console.log("✅ ดึงข้อมูลผู้เล่นสำเร็จ:", playerName);
+          
+          if (welcomePlayerText) {
+            welcomePlayerText.textContent = `ยินดีต้อนรับ คุณ${playerName}!`;
+          }
         } else {
-            clearInterval(typingTimer);
-            typing = false;
-            updateReadButton();
+          console.error("❌ ไม่พบข้อมูลผู้เล่นใน Firestore สำหรับ ID:", playerId);
         }
-    }, 28);
-}
+      } catch (error) {
+        console.error("🔥 เกิดข้อผิดพลาดในการดึงข้อมูลผู้เล่น:", error);
+      }
+    }
 
-
-/* =========================================================
-   HANDLE READ
-========================================================= */
-function handleRead() {
-    if (typing) {
-        clearInterval(typingTimer);
-        storyText.innerHTML = currentText;
-        typing = false;
-        updateReadButton();
+    // ==========================================
+    // Save Score Function
+    // ==========================================
+    async function saveScore(score) {
+      if (!playerId) {
+        console.error("❌ ไม่พบ Player ID ใน URL ไม่สามารถบันทึกคะแนนได้");
         return;
+      }
+
+      try {
+        const playerRef = doc(db, "players", playerId);
+        await updateDoc(playerRef, {
+          score: score,
+          updatedAt: new Date()
+        });
+        console.log("✅ บันทึกคะแนนสำเร็จ:", score);
+      } catch (error) {
+        console.error("🔥 เกิดข้อผิดพลาดในการบันทึกคะแนน:", error);
+      }
     }
 
-    const data = story[currentScene];
+    // ==========================================
+    // Questions Data
+    // ==========================================
+    const questions = [
+        { title: "--- ข้อที่ 1 / 10 --- ", text: "🍎🍎🍎🍎🍎<br><br>มีแอปเปิลกี่ลูก?", answers: ["4 (Four)", "5 (Five)", "6 (Six)", "7 (Seven)"], correctIndex: 1 },
+        { title: "--- ข้อที่ 2 / 10 --- ", text: "🪨🪨🪨 + 🪨🪨<br><br>มีหินทั้งหมดกี่ก้อน?", answers: ["4 (Four)", "5 (Five)", "6 (Six)", "7 (Seven)"], correctIndex: 1 },
+        { title: "--- ข้อที่ 3 / 10 --- ", text: "ฮันเซลมีลูกอม 5 เม็ด<br>เกรเทลให้เพิ่มอีก 3 เม็ด<br>ฮันเซลมีลูกอมทั้งหมดกี่เม็ด?", answers: ["6 (Six)", "7 (Seven)", "8 (Eight)", "9 (Nine)"], correctIndex: 2 },
+        { title: "--- ข้อที่ 4 / 10 --- ", text: "7 + 6 = ?", answers: ["11 (Eleven)", "12 (Twelve)", "13 (Thirteen)", "14 (Fourteen)"], correctIndex: 2 },
+        { title: "--- ข้อที่ 5 / 10 --- ", text: "ฮันเซลมีลูกอม 8 เม็ด<br>กินไป 3 เม็ด<br>เหลือกี่เม็ด?", answers: ["4 (Four)", "5 (Five)", "6 (Six)", "7 (Seven)"], correctIndex: 1 },
+        { title: "--- ข้อที่ 6 / 10 --- ", text: "15 − 8 = ?", answers: ["6 (Six)", "7 (Seven)", "8 (Eight)", "9 (Nine)"], correctIndex: 1 },
+        { title: "--- ข้อที่ 7 / 10 --- ", text: "เรียงก้อนหินจากน้อยไปมาก<br>4, 6, 8, __ ก้อน<br>จำนวนที่หายไปคือเท่าไร?", answers: ["8 (Eight)", "9 (Nine)", "10 (Ten)", "11 (Eleven)"], correctIndex: 2 },
+        { title: "--- ข้อที่ 8 / 10 --- ", text: "🐦🐦🐦🐦🐦 มีนก 5 ตัว<br>และ 🦋🦋🦋 มีผีเสื้อ 3 ตัว<br>นกมากกว่าผีเสื้อกี่ตัว?", answers: ["1 (One)", "2 (Two)", "3 (Three)", "4 (Four)"], correctIndex: 1 },
+        { title: "--- ข้อที่ 9 / 10 --- ", text: "มีหิน 7 ก้อน<br>เก็บเพิ่มอีก 5 ก้อน<br>ตอนนี้มีหินทั้งหมดกี่ก้อน?", answers: ["10 (Ten)", "11 (Eleven)", "12 (Twelve)", "13 (Thirteen)"], correctIndex: 2 },
+        { title: "--- ข้อที่ 10 / 10 --- ", text: "🪨🪨🪨🪨🪨🪨🪨🪨<br>มีหิน 8 ก้อน แบ่งให้เด็ก 2 คนเท่า ๆ กัน แต่ละคนได้กี่ก้อน?", answers: ["2 (Two)", "3 (Three)", "4 (Four)", "5 (Five)"], correctIndex: 2 }
+    ];
 
-    if (currentParagraph < data.paragraphs.length - 1) {
-        currentParagraph++;
-        showParagraph();
-        return;
-    }
+    // ==========================================
+    // Initialization & Events
+    // ==========================================
+    window.addEventListener("DOMContentLoaded", async () => {
+        startScreen = document.getElementById("startScreen");
+        welcomePlayerText = document.getElementById("welcomePlayerText");
+        startBtn = document.getElementById("startBtn");
+        questionTitle = document.getElementById("questionTitle");
+        questionText = document.getElementById("questionText");
+        answers = document.getElementById("answers");
+        feedback = document.getElementById("feedback");
+        nextButton = document.getElementById("nextButton");
+        prevButton = document.getElementById("prevButton");
+        stoneNumber = document.getElementById("stoneNumber");
+        bagStones = document.querySelectorAll(".bagStone");
+        success = document.getElementById("success");
+        resultTitle = document.getElementById("resultTitle");
+        resultText = document.getElementById("resultText");
 
-    showChoices();
-}
-
-
-/* =========================================================
-   UPDATE READ BUTTON
-========================================================= */
-function updateReadButton() {
-    const data = story[currentScene];
-
-    if (typing) {
-        readBtn.textContent = "แสดงข้อความทั้งหมด";
-        return;
-    }
-
-    if (currentParagraph < data.paragraphs.length - 1) {
-        readBtn.textContent = "อ่านต่อ ▼";
-    } else {
-        readBtn.textContent = "เลือกความรู้สึก ▼";
-    }
-}
-
-
-/* =========================================================
-   SHOW CHOICES
-========================================================= */
-function showChoices() {
-    const data = story[currentScene];
-
-    readBtn.classList.add("hidden");
-    emotionArea.classList.add("show");
-    choicesContainer.innerHTML = "";
-
-    nextBtn.classList.add("waiting");
-    nextBtn.disabled = true;
-
-    data.choices.forEach((choice, index) => {
-        const button = document.createElement("button");
-        button.className = "choiceBtn";
-        button.textContent = choice.emotion;
-        button.onclick = () => chooseEmotion(index);
-        choicesContainer.appendChild(button);
+        updateStoneCounter();
+        await loadPlayerData();
     });
-}
 
-
-/* =========================================================
-   CHOOSE EMOTION
-========================================================= */
-function chooseEmotion(choiceIndex) {
-    const data = story[currentScene];
-    const choice = data.choices[choiceIndex];
-
-    selectedChoice = choiceIndex;
-
-    storyText.style.display = "none";
-    emotionArea.classList.remove("show");
-
-    changeSceneImage(choice.image);
-
-    responseBox.innerHTML = `
-        <span class="emotionTag">${choice.emotion}</span>
-        ${choice.response}
-    `;
-    responseBox.classList.add("show");
-
-    nextBtn.disabled = false;
-    nextBtn.classList.remove("waiting");
-
-    if (currentScene === story.length - 1) {
-        nextBtn.textContent = "จบเรื่อง →";
-    } else {
-        nextBtn.textContent = "ไปต่อ →";
-    }
-}
-
-
-/* =========================================================
-   CHANGE IMAGE
-========================================================= */
-function changeSceneImage(imageName) {
-    background.classList.add("scene-change");
-
-    setTimeout(() => {
-        background.src = imageName;
-        background.classList.remove("scene-change");
-    }, 180);
-}
-
-
-/* =========================================================
-   NEXT STEP
-========================================================= */
-function nextStep() {
-    if (selectedChoice === null) return;
-
-    if (currentScene === story.length - 1) {
-        endScreen.classList.add("show");
-        return;
+    function startGame() {
+        startScreen.style.display = "none";
+        resetGame();
+        showQuestion(0);
     }
 
-    loadScene(currentScene + 1);
-}
-
-
-/* =========================================================
-   START MINIGAME
-========================================================= */
-function startMinigame() {
-    if (playerId) {
-        window.location.href = `../Minigame1/Minigame1.html?id=${playerId}`;
-    } else {
-        window.location.href = `../Minigame1/Minigame1.html`;
+    function resetGame() {
+        currentQuestion = 0;
+        questionResults = new Array(10).fill(null);
+        userAnswers = new Array(10).fill(null);
+        success.style.display = "none";
+        updateStoneCounter();
     }
-}
 
+    function updateStoneCounter() {
+        if (!stoneNumber) return;
+        const stonesCollected = questionResults.filter(val => val === true).length;
+        stoneNumber.textContent = stonesCollected;
 
-/* =========================================================
-   RESPONSIVE SCALE (1920x1080)
-========================================================= */
-function resizeGame() {
-    const game = document.getElementById("game");
-    if (!game) return;
+        bagStones.forEach((stone, index) => {
+            if (index < stonesCollected) {
+                stone.classList.remove("hidden");
+            } else {
+                stone.classList.add("hidden");
+            }
+        });
+    }
 
-    const scaleX = window.innerWidth / 1920;
-    const scaleY = window.innerHeight / 1080;
-    const scale = Math.min(scaleX, scaleY);
+    function showQuestion(index) {
+        currentQuestion = index;
+        const question = questions[index];
 
-    game.style.transform = `translate(-50%, -50%) scale(${scale})`;
-}
+        questionTitle.innerHTML = question.title;
+        questionText.innerHTML = question.text;
+        feedback.innerHTML = "";
+        feedback.className = "";
+        answers.innerHTML = "";
 
-window.addEventListener("resize", resizeGame);
-resizeGame();
+        if (prevButton) {
+            prevButton.style.display = currentQuestion > 0 ? "block" : "none";
+        }
 
+        if (nextButton) {
+            nextButton.style.display = questionResults[currentQuestion] !== null ? "block" : "none";
+            nextButton.textContent = (currentQuestion === questions.length - 1) ? "ดูผลสรุป ➜" : "⭢";
+        }
 
-/* =========================================================
-   START GAME
-========================================================= */
-loadScene(0);
+        question.answers.forEach((answerValue, choiceIndex) => {
+            const button = document.createElement("button");
+            button.className = "answer";
+            button.textContent = answerValue;
+
+            if (questionResults[currentQuestion] !== null) {
+                button.disabled = true;
+                if (choiceIndex === question.correctIndex) {
+                    button.classList.add("selected-correct");
+                } else if (choiceIndex === userAnswers[currentQuestion]) {
+                    button.classList.add("selected-wrong");
+                }
+            } else {
+                button.onclick = function() { checkAnswer(choiceIndex, button); };
+            }
+            
+            answers.appendChild(button);
+        });
+
+        if (questionResults[currentQuestion] === true) {
+            feedback.className = "correct";
+            feedback.innerHTML = "🎉 ตอบถูกต้อง! ได้รับก้อนหินเรืองแสง 🪨";
+        } else if (questionResults[currentQuestion] === false) {
+            feedback.className = "wrong";
+            feedback.innerHTML = "❌ ข้อนี้ตอบไม่ถูกต้อง";
+        }
+    }
+
+    function checkAnswer(choiceIndex, clickedButton) {
+        const question = questions[currentQuestion];
+        userAnswers[currentQuestion] = choiceIndex;
+
+        const buttons = answers.querySelectorAll(".answer");
+        buttons.forEach(btn => btn.disabled = true);
+
+        if (choiceIndex === question.correctIndex) {
+            questionResults[currentQuestion] = true;
+            clickedButton.classList.add("selected-correct");
+            feedback.className = "correct";
+            feedback.innerHTML = "🎉 ถูกต้อง! ได้รับก้อนหินเรืองแสง +1 🪨";
+            updateStoneCounter();
+        } else {
+            questionResults[currentQuestion] = false;
+            clickedButton.classList.add("selected-wrong");
+            feedback.className = "wrong";
+            feedback.innerHTML = "❌ ตอบไม่ถูกต้อง!";
+        }
+
+        if (nextButton) nextButton.style.display = "block";
+    }
+
+    function nextQuestion() {
+        if (currentQuestion < questions.length - 1) {
+            showQuestion(currentQuestion + 1);
+        } else {
+            showSuccess();
+        }
+    }
+
+    function prevQuestion() {
+        if (currentQuestion > 0) {
+            showQuestion(currentQuestion - 1);
+        }
+    }
+
+    function showSuccess() {
+        const totalStones = questionResults.filter(val => val === true).length;
+        
+        if (resultTitle) {
+            resultTitle.textContent = totalStones >= 7 ? `เก่งมากคุณ ${playerName}!` : `พยายามอีกนิดนะคุณ ${playerName}! `;
+        }
+        
+        if (resultText) {
+            resultText.innerHTML = `ผู้เล่น: <b>${playerName}</b><br>ตอบถูกทั้งหมด <b>${totalStones} / 10</b> ข้อ<br>สะสมก้อนหินเรืองแสงได้ <b>${totalStones}</b> ก้อน`;
+        }
+
+        success.style.display = "flex";
+        createConfetti();
+        saveScore(totalStones);
+    }
+
+    function createConfetti() {
+        const items = ["🎉", "⭐", "✨", "🪨", "🍀"];
+        for (let i = 0; i < 35; i++) {
+            const item = document.createElement("div");
+            item.className = "confetti";
+            item.textContent = items[Math.floor(Math.random() * items.length)];
+            item.style.left = Math.random() * 100 + "vw";
+            item.style.animationDelay = Math.random() * 1.2 + "s";
+            document.body.appendChild(item);
+            setTimeout(() => item.remove(), 4000);
+        }
+    }
+
+    function goToNextChapter() {
+        if (playerId) {
+            window.location.href = `Story_ch2.html?id=${playerId}`;
+        } else {
+            window.location.href = `Story_ch2.html`;
+        }
+    }
+
+    // ผูกฟังก์ชันเข้ากับ window เพื่อให้ปุ่มเรียกใช้งานได้ปกติ
+    window.startGame = startGame;
+    window.resetGame = resetGame;
+    window.nextQuestion = nextQuestion;
+    window.prevQuestion = prevQuestion;
+    window.goToNextChapter = goToNextChapter;
 </script>
 
 </body>
